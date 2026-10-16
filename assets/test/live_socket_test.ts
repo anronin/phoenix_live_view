@@ -391,6 +391,43 @@ describe("LiveSocket", () => {
     expect(liveSocket.getViewByEl(container(1))).toBeDefined();
   });
 
+  test("connect restores the scroll of history.state before the next frame", () => {
+    const scrollTo = jest
+      .spyOn(window, "scrollTo")
+      .mockImplementation(() => {});
+    const raf = jest
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation(() => 0);
+    history.replaceState({ scroll: 900 }, "");
+
+    liveSocket = new LiveSocket("/live", Socket);
+    liveSocket.connect();
+
+    expect(scrollTo).toHaveBeenCalledWith(0, 900);
+
+    history.replaceState(null, "");
+    scrollTo.mockRestore();
+    raf.mockRestore();
+  });
+
+  test("connect does not scroll without a scroll in history.state", () => {
+    const scrollTo = jest
+      .spyOn(window, "scrollTo")
+      .mockImplementation(() => {});
+    const raf = jest
+      .spyOn(window, "requestAnimationFrame")
+      .mockImplementation(() => 0);
+    history.replaceState(null, "");
+
+    liveSocket = new LiveSocket("/live", Socket);
+    liveSocket.connect();
+
+    expect(scrollTo).not.toHaveBeenCalled();
+
+    scrollTo.mockRestore();
+    raf.mockRestore();
+  });
+
   test("disconnect", async () => {
     liveSocket = new LiveSocket("/live", Socket);
 

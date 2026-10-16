@@ -880,6 +880,9 @@ export default class LiveSocket {
       if (!this.main) {
         this.main = view;
       }
+      // scrollRestoration is "manual", so the browser does not restore the scroll on a
+      // reload. The dead render is already in the DOM, so restore before the first paint.
+      this.scrollNow(history.state?.scroll);
       window.requestAnimationFrame(() => {
         view.execNewMounted();
         // restore scroll position when navigating from an external / non-live page
@@ -1636,6 +1639,13 @@ export default class LiveSocket {
       },
       false,
     );
+  }
+
+  /** @internal */
+  scrollNow(scroll) {
+    if (typeof scroll === "number") {
+      window.scrollTo(0, scroll);
+    }
   }
 
   /** @internal */
