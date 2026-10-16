@@ -391,6 +391,23 @@ describe("LiveSocket", () => {
     expect(liveSocket.getViewByEl(container(1))).toBeDefined();
   });
 
+  test("historyPatch saves the scroll position in the new history entry", () => {
+    liveSocket = new LiveSocket("/live", Socket);
+    liveSocket.connect();
+    Object.defineProperty(window, "scrollY", {
+      value: 640,
+      configurable: true,
+    });
+
+    liveSocket.historyPatch("http://localhost/patched", "push");
+
+    expect(history.state).toMatchObject({ type: "patch", scroll: 640 });
+    expect(window.location.pathname).toBe("/patched");
+
+    Object.defineProperty(window, "scrollY", { value: 0, configurable: true });
+    history.replaceState(null, "", "/");
+  });
+
   test("disconnect", async () => {
     liveSocket = new LiveSocket("/live", Socket);
 

@@ -1709,6 +1709,12 @@ export default class LiveSocket {
       },
       href,
     );
+    // A patch keeps the scroll position, but the scroll listener saves it only on
+    // the next scroll event. Save it now, so a reload before that keeps the place.
+    Browser.updateCurrentState((state) => ({
+      ...state,
+      scroll: window.scrollY,
+    }));
 
     DOM.dispatchEvent(window, "phx:navigate", {
       detail: { patch: true, href, pop: false, direction: "forward" },
